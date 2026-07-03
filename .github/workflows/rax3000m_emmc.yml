@@ -1,4 +1,4 @@
-Name: Build ImmortalWrt 24.10 for RAX3000M (eMMC)
+name: Build ImmortalWrt 24.10 for RAX3000M (eMMC)
 
 on:
   workflow_dispatch:
