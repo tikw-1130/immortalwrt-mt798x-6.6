@@ -60,7 +60,7 @@ jobs:
             - **内核版本**：6.6
             - **固件版本**：ImmortalWrt 24.10 (基于分支 `openwrt-24.10-6.6`)
             - **根分区大小**：160 MB
-            - **主要插件**：磁盘管理, Argon 主题, WireGuard 等（已移除 OpenClash）
+            - **主要插件**：磁盘管理, Argon 主题, WireGuard 等
             - **源码仓库**：[tfnhui/immortalwrt-mt798x-6.6](https://github.com/tfnhui/immortalwrt-mt798x-6.6)
             
             > **刷写说明**：此固件适用于 **eMMC 版本**的 RAX3000M，请勿刷入 NAND 版本设备。
