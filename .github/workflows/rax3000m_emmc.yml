@@ -1,4 +1,4 @@
-name: Build ImmortalWrt 24.10 for RAX3000M (eMMC)
+Name: Build ImmortalWrt 24.10 for RAX3000M (eMMC)
 
 on:
   workflow_dispatch:
@@ -20,12 +20,16 @@ jobs:
           git clone -b openwrt-24.10-6.6 https://github.com/tfnhui/immortalwrt-mt798x-6.6.git openwrt
           cd openwrt
           
-          # 更新 feeds
+          # 更新 feeds（此时它会自动读取你已经修改好的 feeds.conf.default）
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-          # 使用仓库中自带的配置文件（直接使用，不运行 defconfig）
+          # 使用仓库中自带的配置文件
           cp .github/workflows/.config .config
+          
+          # ==================== 核心修改：擦除配置文件中的残留勾选 ====================
+          sed -i 's/CONFIG_PACKAGE_luci-app-openclash=y/# CONFIG_PACKAGE_luci-app-openclash is not set/' .config
+          # ============================================================================
           
           # 下载编译所需的源码包
           make download -j$(nproc)
@@ -56,7 +60,35 @@ jobs:
             - **内核版本**：6.6
             - **固件版本**：ImmortalWrt 24.10 (基于分支 `openwrt-24.10-6.6`)
             - **根分区大小**：160 MB
-            - **主要插件**：OpenClash, 磁盘管理, Argon 主题, WireGuard 等
+            - **主要插件**：磁盘管理, Argon 主题, WireGuard 等
+            - **源码仓库**：[tfnhui/immortalwrt-mt798x-6.6](https://github.com/tfnhui/immortalwrt-mt798x-6.6)
+            
+            > **刷写说明**：此固件适用于 **eMMC 版本**的 RAX3000M，请勿刷入 NAND 版本设备。
+          files: openwrt/bin/targets/mediatek/filogic/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          rm -rf bin/targets/mediatek/filogic/packages
+          
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-24.10-rax3000m-emmc-${{ steps.date.outputs.date }}
+          path: openwrt/bin/targets/mediatek/filogic/
+          if-no-files-found: warn
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "RAX3000M-eMMC 固件 ${{ steps.date.outputs.date }} #${{ github.run_number }}"
+          tag_name: "build-${{ steps.date.outputs.date }}-${{ github.run_number }}"
+          body: |
+            ## 自动编译固件 (ImmortalWrt 24.10)
+            
+            - **编译时间**：${{ steps.date.outputs.date }}
+            - **目标设备**：CMCC RAX3000M (eMMC 版本)
+            - **内核版本**：6.6
+            - **固件版本**：ImmortalWrt 24.10 (基于分支 `openwrt-24.10-6.6`)
+            - **根分区大小**：160 MB
+            - **主要插件**：磁盘管理, Argon 主题, WireGuard 等
             - **源码仓库**：[tfnhui/immortalwrt-mt798x-6.6](https://github.com/tfnhui/immortalwrt-mt798x-6.6)
             
             > **刷写说明**：此固件适用于 **eMMC 版本**的 RAX3000M，请勿刷入 NAND 版本设备。
